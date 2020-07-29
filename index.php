@@ -7,7 +7,7 @@ use \Hcode\Page;
 use \Hcode\PageAdmin;
 
 //facilitação das rotas
-$app = new \Slim\Slim();
+$app = new Slim();
 
 $app->config('debug', true);
 
@@ -22,12 +22,15 @@ $app->get('/', function() {
 });
 
 $app->get('/admin', function() {
-
+    
+    //chamando o construct e carregando o header
     $page = new PageAdmin();
-
-    $Page->setTpl("index");
+    
+    //Vai adicionar o arquivo index
+    $page->setTpl("Index");
 });
- 
+
+
 $app->run();
 
  ?>
