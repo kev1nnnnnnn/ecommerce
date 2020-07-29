@@ -4,6 +4,7 @@ require_once("vendor/autoload.php");
 
 use\Slim\slim;
 use \Hcode\Page;
+use \Hcode\PageAdmin;
 
 //facilitação das rotas
 $app = new \Slim\Slim();
@@ -18,9 +19,15 @@ $app->get('/', function() {
     
     //Vai adicionar o arquivo index
     $page->setTpl("Index");
-
 });
 
+$app->get('/admin', function() {
+
+    $page = new PageAdmin();
+
+    $Page->setTpl("index");
+});
+ 
 $app->run();
 
  ?>
