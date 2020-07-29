@@ -1,0 +1,64 @@
+<?php
+
+
+//chama o namespace Hcode
+namespace Hcode;
+
+//chama o namespace Rain Tpl
+use Rain\Tpl;
+
+//classe PAGE
+class Page {
+
+	private $tpl;
+	private $options = [];
+	private $defaults = [
+		"data"=>[]
+	];
+
+	//primeiro a ser executado ****************************
+	public function __construct($opts = array()){
+
+		$this->options = array_merge($this->defaults, $opts);
+
+		//configuração do RAIN TPL
+		$config = array(
+						"tpl_dir"       => $_SERVER["DOCUMENT_ROOT"]."/views/",
+						"cache_dir"     => $_SERVER["DOCUMENT_ROOT"]."views/cache/",
+						"debug"         => false
+		);
+
+		Tpl::configure( $config );
+
+		$this->tpl = new Tpl;	
+
+		$this->setData($this->options["data"]);
+
+		//criando o arquivo header para repetir em outras pag.
+		$this->tpl->draw("header");
+	}
+
+	private function setData($data = array())
+	{
+		foreach ($data as $key => $value) {
+			$this->tpl->assign($key, $value);
+		}
+	}
+		
+
+	public function setTpl($name, $data =  array(), $returnHTML = false)
+	{
+		$this->setData($data);
+
+		return $this->tpl->draw($name, $returnHTML);
+	}
+
+	//último a ser executado ****************************
+	public function __destruct() {
+
+		$this->tpl->draw("footer");
+
+	}
+}
+
+?>
