@@ -1,9 +1,10 @@
 <?php
 
 namespace Hcode\Model;
+
 use \Hcode\DB\sql;
 use \Hcode\Model;
-use \Hcode\Mailer;
+
 
 //Criando a classe Usuário para a validação ************
 class User extends Model{
@@ -142,7 +143,7 @@ class User extends Model{
 	}
 
 	//Esqueceu sua senha
-	public static function getForgot($email, $inadmin = true)
+	public static function getForgot($email)
 	{
 		//verifica se o email está cadastro no banco de dados
 		$sql = new Sql();
@@ -180,16 +181,14 @@ class User extends Model{
                 $code = base64_encode($code);
                 //Fim criptografia *******
 
-				 if ($inadmin === true) {
-                    $link = "http://www.hcodecommerce.com.br/admin/forgot/reset?code=$code";
-                } else {
-                    $link = "http://www.hcodecommerce.com.br/forgot/reset?code=$code";
-                }
-
+				
+                $link = "http://www.hcodecommerce.com.br/admin/forgot/reset?code=$code";
+               
                 $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir senha da Hcode Store", "forgot", array(
                     "name"=>$data['desperson'],
                     "link"=>$link
                 ));
+                
                 $mailer->send();
 
                 return $data;
@@ -197,36 +196,7 @@ class User extends Model{
 		}
 	}
 
-	/*public static function validForgotDecrypt($result)
- 	{
-		$result = base64_decode($result);
-		$code = mb_substr($result, openssl_cipher_iv_length('aes-256-cbc'), null, '8bit');
-		$iv = mb_substr($result, 0, openssl_cipher_iv_length('aes-256-cbc'), '8bit');;
-		$idrecovery = openssl_decrypt($code, 'aes-256-cbc', User::SECRET, 0, $iv);
-		$sql = new Sql();
-		$results = $sql->select("
-		    SELECT *
-		    FROM tb_userspasswordsrecoveries a
-		    INNER JOIN tb_users b USING(iduser)
-		    INNER JOIN tb_persons c USING(idperson)
-		    WHERE
-		    a.idrecovery = :idrecovery
-		    AND
-		    a.dtrecovery IS NULL
-		    AND
-		    DATE_ADD(a.dtregister, INTERVAL 1 HOUR) >= NOW();
-		", array(
-		    ":idrecovery"=>$idrecovery
-		));
-		if (count($results) === 0)
-		{
-		    throw new \Exception("Não foi possível recuperar a senha.");
-		}
-		else
-		{
-		    return $results[0];
-		}
-	}*/	
+	
 }	
 
 
