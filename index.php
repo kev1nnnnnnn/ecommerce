@@ -161,7 +161,7 @@ $app->post("/admin/users/:iduser", function($iduser) {
 	exit;
 });
 
-//Rota do FORGOT
+//Rota do FORGOT *****************
 $app->get("/admin/forgot", function() {
 
 	$page = new PageAdmin([
@@ -174,12 +174,27 @@ $app->get("/admin/forgot", function() {
 
 });
 
-//pegar o email que o usuário envio via post
+
 $app->post("/admin/forgot", function() {
 
+	//pegar o email que o usuário envio via post
 	$user = User::getForgot($_POST["email"]);
+
+	header("Location: /admin/forgot/sent");
+
+	exit;
 });
 
+$app->get("admin/forgot/sent", function() {
+
+	$page = new PageAdmin([
+
+		"header"=>false,
+		"footer"=>false
+	]);
+
+	$page->setTpl("forgot-sent");
+});
 
 
 $app->run();
