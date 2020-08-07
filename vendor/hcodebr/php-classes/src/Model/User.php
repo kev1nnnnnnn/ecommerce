@@ -4,6 +4,7 @@ namespace Hcode\Model;
 
 use \Hcode\DB\sql;
 use \Hcode\Model;
+use \Hcode\Mailer;
 
 
 //Criando a classe Usuário para a validação ************

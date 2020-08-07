@@ -4,10 +4,10 @@ namespace Hcode;
 
 use Rain\Tpl;
 
-class Mailer{
+class Mailer {
 
-    const USERNAME = "cursophp7hcode@gmail.com";
-    const PASSWORD = "<?password?>";
+    const USERNAME = "kevindevbfv@gmail.com";
+    const PASSWORD = "992133226";
     const NAME_FROM = "Hcode Store";
 
     private $mail;
