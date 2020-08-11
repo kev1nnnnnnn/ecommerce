@@ -26,11 +26,12 @@ class Category extends Model{
 		$results = $sql->select("CALL sp_categories_save(:idcategory, :descategory)", array(
 
 			":idcategory"=>$this->getidcategory(),
-			":descategory"=>$this->getdescategory(),
-			
+			":descategory"=>$this->getdescategory(),	
 		));
 
 		$this->setData($results[0]);
+
+		Category::updateFile();
 	}
 
 	public function get($idcategory)
@@ -51,6 +52,24 @@ class Category extends Model{
 		$sql->query("DELETE FROM tb_categories WHERE idcategory =:idcategory", [
 			'idcategory'=>$this->getidcategory()
 		]);
+
+		//chamar o update file quando fizer um delete
+		Category::updateFile();
+	}
+
+	//atualizar o arquivo
+	public static function updateFile()
+	{
+		//traz as categorias do banco de dados
+		$categories = Category::listAll();
+
+		$html = [];
+
+		foreach ($categories as $row) {
+			array_push($html, '<li><a href="/categories/'.$row['idcategory'].'">'.$row['descategory'].'</a></li>');
+		}
+		//salva o arquivo
+		file_put_contents($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR."views". DIRECTORY_SEPARATOR . "categories-menu.html", implode('', $html));
 	}
 	
 
