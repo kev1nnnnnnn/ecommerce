@@ -13,7 +13,7 @@ use \Hcode\Model\Product;
 	    $page = new Page();
 	    
 	    //Vai adicionar o arquivo index
-	    $page->setTpl("Index", [
+	    $page->setTpl("index", [
 	    	'products'=>Product::checkList($products)
 	    ]);
 	});

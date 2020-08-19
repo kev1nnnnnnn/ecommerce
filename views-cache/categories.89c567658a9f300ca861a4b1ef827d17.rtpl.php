@@ -33,7 +33,6 @@
                 </thead>
                 <tbody>
                   <?php $counter1=-1;  if( isset($categories) && ( is_array($categories) || $categories instanceof Traversable ) && sizeof($categories) ) foreach( $categories as $key1 => $value1 ){ $counter1++; ?>
-
                   <tr>
                     <td><?php echo htmlspecialchars( $value1["idcategory"], ENT_COMPAT, 'UTF-8', FALSE ); ?></td>
                     <td><?php echo htmlspecialchars( $value1["descategory"], ENT_COMPAT, 'UTF-8', FALSE ); ?></td>
@@ -43,7 +42,6 @@
                     </td>
                   </tr>
                   <?php } ?>
-
                 </tbody>
               </table>
             </div>
