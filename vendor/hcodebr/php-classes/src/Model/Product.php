@@ -21,6 +21,17 @@ class Product extends Model{
 		return $sql->select("SELECT * FROM tb_products ORDER BY desproduct");
 	}
 
+	//checagem na lista de produtos
+	public static function checkList($list)
+	{
+		foreach ($list as &$row) { //maipular a mesma variavel na memoria com & comercial
+			$p = new Product();
+			$p->setData($row);
+			$row = $p->getValues();
+		}
+		return $list;
+	}
+
 	public function save()
 	{
 		$sql = new Sql();
