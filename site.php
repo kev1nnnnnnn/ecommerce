@@ -4,6 +4,7 @@ use \Hcode\Page;
 use \Hcode\Model\Product;
 use \Hcode\Model\Category;
 use \Hcode\Model\User;
+use \Hcode\Model\Cart;
 
 	//quando chamarem via get, uma chamada padrao a pasta raiz, ou seja o site sem nenhuma rota, executa essa função;
 	$app->get('/', function() {
@@ -59,9 +60,17 @@ use \Hcode\Model\User;
 
 		$page->setTpl("product-detail", [
 			'product'=>$product->getValues(),
-			'categories'=>[]
+			'categories'=>$product->getCategories()
 		]);
 	});
 
+	$app->get("/cart", function() {
+
+		$cart = Cart::getFromSession();
+
+		$page = new Page();
+
+		$page->setTpl("cart");
+	});
 
 ?>

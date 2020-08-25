@@ -14,6 +14,54 @@ class User extends Model{
     const SECRET = "HcodePhp7_Secret";
     const SECRET_IV= "HcodePhp7_Secret_IV";
 
+    //verifica se a sessao existe, se o id do usuario é maior que 0
+    public static function getFromSession()
+    {
+
+   		$user = new User();
+
+   		if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {
+   			
+   			//se nao carregou traz o usuario vazio sem id
+    		$user->setData($_SESSION[User::SESSION]);
+    	}
+
+    	return $user;
+    }
+    //metodo check login
+    public static function checkLogin($inadmin = true)
+    {
+    	if (
+    		!isset($_SESSION[User::SESSION])
+			||
+			!$_SESSION[User::SESSION]
+			||
+			!(int)$_SESSION[User::SESSION]["iduser"] > 0
+    	) {
+    		//nao esta logado
+    		return false;
+
+    		//to fazendo uma verificação de uma rota da adm? se fizer 
+    	} else {
+
+    		//so acontece se tentar acessar uma rota de adm
+    		if($inadmin === true && (bool)$_SESSION[User::SESSION]["iduser"] === true){
+    			
+    			return false;
+    		
+    		} else if($inadmin === false) {
+
+    			return true;
+    		
+    		//se algo for diferente, nao esta logado
+    		} else {
+
+    			false;
+    		}
+    	}
+
+    }
+
 	public static function login($login, $password)
 	{	
 		//chama a classe Sql para consulta
@@ -50,19 +98,10 @@ class User extends Model{
 	//Verifica se o usuário está logado
 	public static function verifyLogin($inadmin = true)
 	{
-		if(
-			!isset($_SESSION[User::SESSION])
-			||
-			!$_SESSION[User::SESSION]
-			||
-			!(int)$_SESSION[User::SESSION]["iduser"] > 0
-			//verifica se pode ter acesso a admin
-			||
-			(bool)$_SESSION[User::SESSION]["inadmin"] !== $inadmin
-		) {
+		if(User::checkLogin($inadmin)) {
 
 			header("Location: /admin/login");
-			exit();
+			exit;
 		}		
 	}
 
