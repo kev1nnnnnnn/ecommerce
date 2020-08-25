@@ -21,6 +21,7 @@ use \Hcode\Model\User;
 	});
 
 	$app->get("/categories/:idcategory", function($idcategory) {
+		
 		$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
 
 		$category = new Category();
@@ -48,6 +49,19 @@ use \Hcode\Model\User;
 
 	});
 
+	$app->get("/products/:desurl", function($desurl) {
+
+		$product = new Product();
+
+		$product->getFromURL($desurl);
+
+		$page = new Page();
+
+		$page->setTpl("product-detail", [
+			'product'=>$product->getValues(),
+			'categories'=>[]
+		]);
+	});
 
 
 ?>
