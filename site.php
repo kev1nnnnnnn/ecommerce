@@ -70,7 +70,71 @@ use \Hcode\Model\Cart;
 
 		$page = new Page();
 
-		$page->setTpl("cart");
+		$page->setTpl("cart", [
+			'cart'=>$cart->getValues(),
+			'products'=>$cart->getProducts()
+			 //passa a variavel cart com as info do carrinho
+		]);
+	});
+
+	//rota para adicionar o item no carrinho
+	$app->get("/cart/:idproduct/add", function($idproduct){
+
+		$product = new Product();
+
+		$product->get((int)$idproduct);
+
+		//recupera o carrinho pega da sessao ou criar um novo
+		$cart = Cart::getFromSession();
+
+		$qtd = (isset($_GET['qtd'])) ? (int)$_GET['qtd'] : 1;
+
+		for ($i= 0; $i <$qtd; $i++) { 
+			//recebe a instancia da classe product, isso adiciona o produto no carrinho
+			$cart->addProduct($product);
+		}
+		
+		
+
+		header("Location: /cart");
+		exit;
+
+	});
+
+	//rota para remover apenas um item do carrinho
+	$app->get("/cart/:idproduct/minus", function($idproduct){
+
+		$product = new Product();
+
+		$product->get((int)$idproduct);
+
+		//recupera o carrinho pega da sessao ou criar um novo
+		$cart = Cart::getFromSession();
+
+		//recebe a instancia da classe product, isso adiciona o produto no carrinho
+		$cart->removeProduct($product);
+
+		header("Location: /cart");
+		exit;
+
+	});
+
+	//rota para remover o produto do carrinho
+	$app->get("/cart/:idproduct/remove", function($idproduct){
+
+		$product = new Product();
+
+		$product->get((int)$idproduct);
+
+		//recupera o carrinho pega da sessao ou criar um novo
+		$cart = Cart::getFromSession();
+
+		//recebe a instancia da classe product, isso adiciona o produto no carrinho, passa true para remover todos
+		$cart->removeProduct($product, true);
+
+		header("Location: /cart");
+		exit;
+
 	});
 
 ?>
