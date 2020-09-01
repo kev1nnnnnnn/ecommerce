@@ -72,8 +72,9 @@ use \Hcode\Model\Cart;
 
 		$page->setTpl("cart", [
 			'cart'=>$cart->getValues(),
-			'products'=>$cart->getProducts()
+			'products'=>$cart->getProducts(),
 			 //passa a variavel cart com as info do carrinho
+			'error'=>Cart::getMsgError()
 		]);
 	});
 
@@ -135,6 +136,19 @@ use \Hcode\Model\Cart;
 		header("Location: /cart");
 		exit;
 
+	});
+
+	//configurar a rota que vai receber a chamada do envio do formulario com o cep para calcular
+	$app->post("/cart/freight/", function(){
+
+		//pega o carrinho que esta na sessao
+		$cart = Cart::getFromSession();
+
+		//metodo para passar o cep
+		$cart->setFreight($_POST['zipcode']);
+
+		header("Location: /cart");
+		exit;
 	});
 
 ?>

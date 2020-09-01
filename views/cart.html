@@ -20,10 +20,11 @@
                     <div class="woocommerce">
 
                         <form action="/checkout">
-                            
+                            {if="$error != ''"}
                             <div class="alert alert-danger" role="alert">
-                            Error!
+                            {$error}
                             </div>
+                            {/if}
 
                             <table cellspacing="0" class="shop_table cart">
                                 <thead>
@@ -79,8 +80,8 @@
                                     
                                     <div class="coupon">
                                         <label for="cep">CEP:</label>
-                                        <input type="text" placeholder="00000-000" value="" id="cep" class="input-text" name="zipcode">
-                                        <input type="submit" formmethod="post" formaction="/cart/freight" value="CÁLCULAR" class="button">
+                                        <input type="text" placeholder="00000-000" value="{$cart.deszipcode}" id="cep" class="input-text" name="zipcode">
+                                        <input type="submit" formmethod="POST" formaction="/cart/freight" value="CÁLCULAR" class="button">
                                     </div>
 
                                 </div>
@@ -98,7 +99,7 @@
 
                                             <tr class="shipping">
                                                 <th>Frete</th>
-                                                <td>$5.00 <small>prazo de 0 dia(s)</small></td>
+                                                <td>R${function="formatPrice($cart.vlfreight)"}{if="$cart.nrdays > 0"} <small>prazo de {$cart.nrdays} dia(s)</small>{/if}</td>
                                             </tr>
 
                                             <tr class="order-total">
