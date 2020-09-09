@@ -106,6 +106,16 @@ class Cart extends Model {
 			':nrdays'=>$this->getnrdays()
 		]);
 
+		var_dump($sql->select("CALL sp_carts_save(:idcart, :dessessionid, :iduser, :deszipcode, :vlfreight, :nrdays)", [
+			':idcart'=>$this->getidcart(),
+			':dessessionid'=>$this->getdessessionid(),
+			':iduser'=>$this->getiduser(),
+			':deszipcode'=>$this->getdeszipcode(),
+			':vlfreight'=>$this->getvlfreight(),
+			':nrdays'=>$this->getnrdays()
+		]));
+		exit;
+
 		$this->setData($results[0]);
 	}
 
@@ -163,11 +173,13 @@ class Cart extends Model {
 		]);
 
 		return Product::checkList($rows);
+
 	}
 
 	//metodo que traz todos os itens e a soma de cada um dos atributos dos produtos do carrinho
 	public function getProductsTotals()
 	{
+
 		$sql = new Sql();
 
 		$results = $sql->select("
@@ -179,13 +191,15 @@ class Cart extends Model {
 			':idcart'=>$this->getidcart()
 		]);
 
-		if(count($results) > 0) {
+		if (count($results) > 0) {
 			return $results[0];
 		} else {
 			return [];
 		}
+
 	}
 
+	//metodo para calcular o FRETE
 	public function setFreight($nrzipcode)
 	{
 		//certificar que se digitar o traço seja removido
@@ -202,24 +216,38 @@ class Cart extends Model {
 			if($totals['vllength'] < 16) $totals['vllength'] = 16;
 
 			//espera um array
-			$qs = http_build_query([
-				'nCdEmpresa'=>'',
-				'sDsSenha'=>'',
-				'nCdServico'=>'40010',
-				'sCepOrigem'=>'09853120',
-				'sCepDestino'=>$nrzipcode,
-				'nVlPeso'=>$totals['vlweight'],
-				'nCdFormato'=>'1',
-				'nVlComprimento'=>$totals['vllength'],
-				'nVlAltura'=>$totals['vlheight'],
-				'nVlLargura'=>$totals['vlwidth'],
-				'nVlDiametro'=>'0',
-				'sCdMaoPropria'=>'S',
-				'nVlValorDeclarado'=>$totals['vlprice'],
-				'sCdAvisoRecebimento'=>'S'
-			]);
+			$qs = http_build_query ( [ 
+
+					'nCdEmpresa' => '',
+
+					'sDsSenha' => '',
+
+					'nCdServico' => '40010',
+
+					'sCepOrigem' => '69038279',
+
+					'sCepDestino' => $nrzipcode,
+
+					'nVlPeso' => $totals['vlweight'],
+
+					'nCdFormato' => '1',
+
+					'nVlComprimento' => $totals['vllength'],
+
+					'nVlAltura' => $totals['vlheight'],
+
+					'nVlLargura' => $totals['vlwidth'],
+
+					'nVlDiametro' => '0',
+
+					'sCdMaoPropria' => 'S',
+
+					'nVlValorDeclarado' => $totals['vlprice'],
+
+					'sCdAvisoRecebimento' => 'S'
+			] );
 			//funcao para ler xml
-			$xml = simplexml_load_file("http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrecoPrazo?".$qs);
+			$xml = simplexml_load_file("http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrecoPrazo?". $qs);
 
 			$result = $xml->Servicos->cServico;
 
@@ -234,9 +262,13 @@ class Cart extends Model {
 			}
 
 			$this->setnrdays($result->PrazoEntrega);
+
 			$this->setvlfreight(Cart::formatValueToDecimal($result->Valor));
+
 			$this->setdeszipecode($nrzipcode);
 
+			$this->save();
+			
 			return $result;
 
 		} else {
@@ -275,7 +307,7 @@ class Cart extends Model {
 	{
 		if ($this->getdeszipcode() != '' ) {
 
-			$this->updateFreight($this->getdeszipcode());
+			$this->setFreight($this->getdeszipcode());
 		}
 	}
 }

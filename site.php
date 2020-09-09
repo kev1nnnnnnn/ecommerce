@@ -95,8 +95,6 @@ use \Hcode\Model\Cart;
 			$cart->addProduct($product);
 		}
 		
-		
-
 		header("Location: /cart");
 		exit;
 
@@ -139,7 +137,7 @@ use \Hcode\Model\Cart;
 	});
 
 	//configurar a rota que vai receber a chamada do envio do formulario com o cep para calcular
-	$app->post("/cart/freight/", function(){
+	$app->post("/cart/freight", function(){
 
 		//pega o carrinho que esta na sessao
 		$cart = Cart::getFromSession();
