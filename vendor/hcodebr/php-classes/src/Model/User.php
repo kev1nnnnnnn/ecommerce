@@ -12,7 +12,8 @@ class User extends Model{
 
 	const SESSION = "User";
     const SECRET = "HcodePhp7_Secret";
-    const SECRET_IV= "HcodePhp7_Secret_IV";
+    const SECRET_IV = "HcodePhp7_Secret_IV";
+    const ERROR = "UserError";
 
     //verifica se a sessao existe, se o id do usuario é maior que 0
     public static function getFromSession()
@@ -32,31 +33,31 @@ class User extends Model{
     public static function checkLogin($inadmin = true)
     {
     	if (
-    		!isset($_SESSION[User::SESSION])
+			!isset($_SESSION[User::SESSION])
 			||
 			!$_SESSION[User::SESSION]
 			||
 			!(int)$_SESSION[User::SESSION]["iduser"] > 0
-    	) {
-    		//nao esta logado
-    		return false;
+		) {
+			//Não está logado
+			return false;
 
     		//to fazendo uma verificação de uma rota da adm? se fizer 
     	} else {
 
     		//so acontece se tentar acessar uma rota de adm
-    		if($inadmin === true && (bool)$_SESSION[User::SESSION]["iduser"] === true){
-    			
-    			return false;
-    		
-    		} else if($inadmin === false) {
+    		if ($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true) {
 
-    			return true;
+				return true;
+
+			} else if ($inadmin === false) {
+
+				return true;
     		
     		//se algo for diferente, nao esta logado
     		} else {
 
-    			false;
+    			return false;
     		}
     	}
 
@@ -67,9 +68,11 @@ class User extends Model{
 		//chama a classe Sql para consulta
 		$sql = new Sql();
 
-		$results = $sql->select("SELECT * FROM tb_users WHERE deslogin = :LOGIN", array(
+		$results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b ON a.idperson = b.idperson WHERE a.deslogin = :LOGIN", array(
 			":LOGIN"=>$login
 		));
+
+
 
 		if(count($results) === 0) {
 
@@ -82,6 +85,9 @@ class User extends Model{
 		if(password_verify($password, $data["despassword"]) === true)
 		{
 			$user = new User();
+
+			//quando traz do banco faz o encode
+			$data['desperson'] = utf8_encode($data["desperson"]);
 
 			//busca no banco e cria automaticamente
 			$user->setData($data);
@@ -97,13 +103,20 @@ class User extends Model{
 
 	//Verifica se o usuário está logado
 	public static function verifyLogin($inadmin = true)
-	{
-		if(User::checkLogin($inadmin)) {
-
-			header("Location: /admin/login");
-			exit;
-		}		
-	}
+{
+ 
+    if(!User::checkLogin($inadmin)) {
+ 
+        if ($inadmin){
+            header("Location: /admin/login");
+        } else {
+            header("Location: /login");
+        }
+        exit;
+ 
+    }
+ 
+}
 
 	public static function logout()
 	{
@@ -126,9 +139,9 @@ class User extends Model{
 
 		$results = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
 
-			":desperson"=>$this->getdesperson(),
+			":desperson"=>utf8_decode($this->getdesperson()),
 			":deslogin"=>$this->getdeslogin(),
-			":despassword"=>$this->getdespassword(),
+			":despassword"=>User::getPasswordHash($this->getdespassword()),
 			":desemail"=>$this->getdesemail(),
 			"nrphone"=>$this->getnrphone(),
 			"inadmin"=>$this->getinadmin()
@@ -148,6 +161,8 @@ class User extends Model{
 	 ));
 	 
 	 $data = $results[0];
+
+	 $data['desperson'] = utf8_encode($data["desperson"]);
 	 
 	 $this->setData($data);
 		 
@@ -161,9 +176,9 @@ class User extends Model{
 		$results = $sql->select("CALL sp_usersupdate_save(:iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
 
 			":iduser"=>$this->getiduser(),
-			":desperson"=>$this->getdesperson(),
+			":desperson"=>utf8_decode($this->getdesperson()),
 			":deslogin"=>$this->getdeslogin(),
-			":despassword"=>$this->getdespassword(),
+			":despassword"=>User::getPasswordHash($this->getdespassword()),
 			":desemail"=>$this->getdesemail(),
 			"nrphone"=>$this->getnrphone(),
 			"inadmin"=>$this->getinadmin()
@@ -306,6 +321,63 @@ class User extends Model{
 			":password"=>$password,
 			":iduser"=>$this->getiduser()
 		));
+	}
+
+	public static function setError($msg)
+	{
+		$_SESSION[User::ERROR] = $msg;
+	}
+
+	public static function getError()
+	{	
+		//verifica se o erro está definido, se estiver definido e nao for vazio, retorna msg de erro, se nao, retorna vazio.
+		$msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
+
+		//assim que pega o erro, limpa para nao ficar erro na session.
+		User::ClearError();
+
+		return $msg;
+	}
+
+	//metodo pra limpar o erro
+	public static function ClearError()
+	{
+		$_SESSION[User::ERROR] = NULL;
+	}
+
+	public static function setErrorRegister($msg)
+	{	
+		$_SESSION[User::ERROR_REGISTER] = $msg;
+	}
+
+	public static function getErrorRegister()
+	{
+		$msg = (isset($_SESSION[User::ERROR_REGISTER]) && $_SESSION[User::ERROR_REGISTER]) ? $_SESSION[User::ERROR_REGISTER] : '';
+
+		User:clearErrorRegister();
+
+		return $msg;
+	}
+
+	public static function clearErrorRegister()
+	{
+		$_SESSION[User::ERROR_REGISTER] = NULL;
+	}
+
+	public static function checkLoginExist($login)
+	{
+		$sql = new Sql();
+
+		$results = $sql->select("SELECT * FROM tb_users WHERE deslogin = :deslogin", [
+			':deslogin'=>$login
+		]);
+	}
+
+	public static function getPasswordHash($password)
+	{
+		return password_hash($password, PASSWORD_DEFAULT, [
+			'cost'=>12
+		]);
 	}
 
 }	

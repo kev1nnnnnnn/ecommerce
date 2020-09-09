@@ -3,10 +3,12 @@
 use \Hcode\Page;
 use \Hcode\Model\Product;
 use \Hcode\Model\Category;
-use \Hcode\Model\User;
 use \Hcode\Model\Cart;
+use \Hcode\Model\Address;
+use \Hcode\Model\User;
 
-	//quando chamarem via get, uma chamada padrao a pasta raiz, ou seja o site sem nenhuma rota, executa essa função;
+
+	//quando chamarem via get, uma chamada padrao a pasta raiz, ou seja o site sem nenhuma rota, executa essa função
 	$app->get('/', function() {
 
 		//passa os produtos do banco
@@ -146,6 +148,57 @@ use \Hcode\Model\Cart;
 		$cart->setFreight($_POST['zipcode']);
 
 		header("Location: /cart");
+		exit;
+	});
+
+	//finalizar Compra
+	$app->get("/checkout", function(){
+
+		User::verifyLogin(false);
+
+		$cart = Cart::getFromSession();
+
+		$address = new Address();
+
+		$page = new Page();
+
+		$page->setTpl("checkout", [
+			'cart'=>$cart->getValues(),
+			'address'=>$address->getValues()
+		]);
+	});
+
+	$app->get("/login", function(){
+
+		$page = new Page();
+
+		$page->setTpl("login", [
+			'error'=>User::getError()
+		]);
+	});
+
+	$app->post("/login", function(){
+
+		try {
+
+			User::login($_POST['login'], $_POST['password']);
+
+		} catch(Exception $e) {
+
+			User::setError($e->getMessage());
+		}
+
+		
+
+		header("Location: /checkout");
+		exit;
+	});
+
+	$app->Get("/logout", function() {
+
+		User::logout();
+
+		header("Location: /login");
 		exit;
 	});
 
