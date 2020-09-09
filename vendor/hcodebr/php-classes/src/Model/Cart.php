@@ -119,7 +119,8 @@ class Cart extends Model {
 			':idproduct'=>$product->getidproduct()
 		]);
 
-		$this->updateFreight();
+		//forçando o recalculo
+		$this->getCalculateTotal();
 	}
 
 	//se ta removendo um ou todos os produtos igual a esse.
@@ -141,8 +142,8 @@ class Cart extends Model {
 				':idproduct'=>$product->getidproduct()
 			]);
 		}
-
-		$this->updateFreight();
+		//forçando o recalculo
+		$this->getCalculateTotal();
 	}
 
 	//adicionar produtos e somar
@@ -255,7 +256,7 @@ class Cart extends Model {
 
 			$this->setvlfreight(Cart::formatValueToDecimal($result->Valor));
 
-			$this->setdeszipecode($nrzipcode);
+			$this->setdeszipcode($nrzipcode);
 
 			$this->save();
 			
@@ -294,11 +295,30 @@ class Cart extends Model {
 	}
 
 	public function updateFreight()
-	{
-		if ($this->getdeszipcode() != '' ) {
+	{	
+		//verifica se tem um cep dentro do carrinho
+		if ($this->getdeszipcode() != '') {
 
 			$this->setFreight($this->getdeszipcode());
 		}
+	}
+
+	public function getValues()
+	{	
+		//ver o total, somar subtotal e total, e colocar a informação no objeto
+		$this->getCalculateTotal();
+
+		return parent::getValues();
+	}
+
+	public function getCalculateTotal()
+	{	
+		$this->updateFreight();
+
+		$totals = $this->getProductsTotals();
+
+		$this->setvlsubtotal($totals['vlprice']);
+		$this->setvltotal($totals['vlprice'] + $this->getvlfreight());
 	}
 }
 
