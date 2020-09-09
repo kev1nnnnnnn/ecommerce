@@ -106,16 +106,6 @@ class Cart extends Model {
 			':nrdays'=>$this->getnrdays()
 		]);
 
-		var_dump($sql->select("CALL sp_carts_save(:idcart, :dessessionid, :iduser, :deszipcode, :vlfreight, :nrdays)", [
-			':idcart'=>$this->getidcart(),
-			':dessessionid'=>$this->getdessessionid(),
-			':iduser'=>$this->getiduser(),
-			':deszipcode'=>$this->getdeszipcode(),
-			':vlfreight'=>$this->getvlfreight(),
-			':nrdays'=>$this->getnrdays()
-		]));
-		exit;
-
 		$this->setData($results[0]);
 	}
 
