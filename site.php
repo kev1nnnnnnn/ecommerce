@@ -378,7 +378,7 @@ use \Hcode\Model\User;
 
 		$user->setData($_POST);
 
-		$user->save();
+		$user->update();
 
 		User::setSuccess("Dados alterados com sucesso!");
 
