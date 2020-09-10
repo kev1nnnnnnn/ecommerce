@@ -340,13 +340,17 @@ use \Hcode\Model\User;
 
 		//validando erros
 		if (!isset($_POST['desperson']) || $_POST['desperson'] === '') {
+		
 		User::setError("Preencha o seu nome.");
+		
 		header('Location: /profile');
 		exit;
 		}
 
 		if (!isset($_POST['desemail']) || $_POST['desemail'] === '') {
+			
 			User::setError("Preencha o seu e-mail.");
+			
 			header('Location: /profile');
 			exit;
 		}
@@ -358,7 +362,9 @@ use \Hcode\Model\User;
 
 			if (User::checkLoginExists($_POST['desemail']) === true) {
 
+				
 				User::setError("Este endereço de e-mail já está cadastrado.");
+				
 				header('Location: /profile');
 				exit;
 
