@@ -15,6 +15,7 @@ class User extends Model{
     const SECRET_IV = "HcodePhp7_Secret_IV";
     const ERROR = "UserError";
     const ERROR_REGISTER = "UserErrorRegister";
+    const SUCCESS = "UserSuccess";
 
     //verifica se a sessao existe, se o id do usuario é maior que 0
     public static function getFromSession()
@@ -347,6 +348,28 @@ class User extends Model{
 		$_SESSION[User::ERROR] = NULL;
 	}
 
+	public static function setSuccess($msg)
+	{
+		$_SESSION[User::SUCCESS] = $msg;
+	}
+
+	public static function getSuccess()
+	{	
+		//verifica se o erro está definido, se estiver definido e nao for vazio, retorna msg de erro, se nao, retorna vazio.
+		$msg = (isset($_SESSION[User::SUCCESS]) && $_SESSION[User::SUCCESS]) ? $_SESSION[User::SUCCESS] : '';
+
+		//assim que pega o erro, limpa para nao ficar erro na session.
+		User::ClearSuccess();
+
+		return $msg;
+	}
+
+	//metodo pra limpar o erro
+	public static function clearSuccess()
+	{
+		$_SESSION[User::SUCCESS] = NULL;
+	}
+
 	public static function setErrorRegister($msg)
 	{	
 		$_SESSION[User::ERROR_REGISTER] = $msg;
@@ -357,7 +380,7 @@ class User extends Model{
 	{
 		$msg = (isset($_SESSION[User::ERROR_REGISTER]) && $_SESSION[User::ERROR_REGISTER]) ? $_SESSION[User::ERROR_REGISTER] : '';
 
-		User::clearErrorRegister();
+		User::clearSuccessRegister();
 
 		return $msg;
 	}
