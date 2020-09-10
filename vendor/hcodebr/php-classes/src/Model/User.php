@@ -244,6 +244,7 @@ class User extends Model{
 
 				$code = base64_encode($code);
 
+				//se for verdade manda o link da adm
 				if ($inadmin === true) {
 
 					$link = "http://www.hcodecommerce.com.br/admin/forgot/reset?code=$code";

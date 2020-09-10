@@ -255,5 +255,64 @@ use \Hcode\Model\User;
 		header('Location: /checkout');
 		exit;
 	});
+//	****************ESQUECEU SUA SENHA ****************
+	//GET
+	$app->get("/forgot", function() {
+
+		$page = new Page();
+
+		$page->setTpl("forgot");
+	});
+
+	//POST
+	$app->post("/forgot", function() {
+
+		$user = User::getForgot($_POST['email'], false); //false pra entender que nao esta na adm
+
+		header("Location: /forgot/sent");
+		exit;
+	});
+
+	$app->get("/forgot/sent", function() {
+
+		$page = new Page();
+
+		$page->setTpl("forgot-sent");
+	});
+
+	$app->get("/forgot/reset", function() {
+
+		$user = Uer::validForgotDecrypt($_GET['code']);
+
+		$page = new Page();
+
+		$page->setTpl("forgot-reset", array(
+			"name"=>$user['desperson'],
+			"code"=>$_GET['code']
+
+		));
+	});
+
+	//POST
+	$app->post("/forgot/reset", function() {
+
+		$forgot = User::validForgotDecrypt($_POST['code']);
+
+		User::setForgotUsed($forgot["idrecovery"]);
+
+		$user = new User();
+
+		$user->get((int)$forgot["iduser"]);
+
+		$password = User::getPasswordHash($_POST["password"]);
+
+		$user->setPassword($password);
+
+		$page = new Page();
+
+		$page->setTpl("forgot-reset-success");
+	});
+
+	//FIM DO ESQUECEU SUA SENHA
 
 ?>
