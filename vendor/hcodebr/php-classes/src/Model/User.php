@@ -14,6 +14,7 @@ class User extends Model{
     const SECRET = "HcodePhp7_Secret";
     const SECRET_IV = "HcodePhp7_Secret_IV";
     const ERROR = "UserError";
+    const ERROR_REGISTER = "UserErrorRegister";
 
     //verifica se a sessao existe, se o id do usuario é maior que 0
     public static function getFromSession()
@@ -350,11 +351,12 @@ class User extends Model{
 		$_SESSION[User::ERROR_REGISTER] = $msg;
 	}
 
+	//método onde os campos não podem ser em branco.
 	public static function getErrorRegister()
 	{
 		$msg = (isset($_SESSION[User::ERROR_REGISTER]) && $_SESSION[User::ERROR_REGISTER]) ? $_SESSION[User::ERROR_REGISTER] : '';
 
-		User:clearErrorRegister();
+		User::clearErrorRegister();
 
 		return $msg;
 	}
@@ -364,6 +366,7 @@ class User extends Model{
 		$_SESSION[User::ERROR_REGISTER] = NULL;
 	}
 
+	//sem conflitos entre usuarios
 	public static function checkLoginExist($login)
 	{
 		$sql = new Sql();

@@ -173,7 +173,9 @@ use \Hcode\Model\User;
 		$page = new Page();
 
 		$page->setTpl("login", [
-			'error'=>User::getError()
+			'error'=>User::getError(),
+			'errorRegister'=>User::getErrorRegister(),
+			'registerValues'=>(isset($_SESSION['registerValues'])) ? $_SESSION['registerValues'] : ['name'=>'', 'email'=>'', 'phone'=>'']
 		]);
 	});
 
@@ -199,6 +201,58 @@ use \Hcode\Model\User;
 		User::logout();
 
 		header("Location: /login");
+		exit;
+	});
+
+	//Rotas para preenchimento de campo obrigatorio
+	$app->post("/register", function () {
+
+		$_SESSION['registerValues'] = $_POST;
+
+		if (!isset($_POST['name']) || $_POST['name'] == '') {
+
+			User::setErrorRegister("Preencha o seu nome.");
+			header("Location: /login");
+			exit;
+		}
+
+		if (!isset($_POST['email']) || $_POST['email'] == '') {
+
+			User::setErrorRegister("Preencha o seu Email.");
+			header("Location: /login");
+			exit;
+		}
+
+		if (!isset($_POST['password']) || $_POST['password'] == '') {
+
+			User::setErrorRegister("Preencha a sua senha.");
+			header("Location: /login");
+			exit;
+		}
+
+		//impedem que dois login utilizem o mesmo email 
+		if(User::checkLoginExist($_POST['email']) === true) {
+			User::setErrorRegister("Este endereço de email ja está sendo usado por outro usuário.");
+			header("Location: /login");
+			exit;
+		}
+
+		$user = new User();
+
+		$user->setData([
+			'inadmin'=>0,
+			'deslogin'=>$_POST['email'],
+			'desperson'=>$_POST['name'],
+			'desemail'=>$_POST['email'],
+			'despassword'=>$_POST['password'],
+			'nrphone'=>$_POST['phone']
+		]);
+
+		$user->save();
+
+		User::login($_POST['email'], $_POST['password']);
+
+		header('Location: /checkout');
 		exit;
 	});
 
