@@ -200,14 +200,14 @@ class Cart extends Model {
 		$totals = $this->getProductsTotals();
 
 		//verifica se tem algum produto no carrinho
-		if ($totals['nrqtd'] > 0) {
+		if ($totals['nrqtd'] >= 1) {
 
 			//erro de regra de negocio
-			if ($totals['vlheight'] > 2) $totals['vlheight'] = 2;
+			if ($totals['vlheight'] < 2) $totals['vlheight'] = 2;
 
-	        if ($totals['vllength'] > 16) $totals['vllength'] = 16;
+			if ($totals['vllength'] < 16) $totals['vllength'] = 16;
 
-	        if ($totals['vlwidth'] > 11) $totals['vlwidth'] = 11;
+	        if ($totals['vlwidth'] < 11) $totals['vlwidth'] = 11;
 
 			//espera um array
 			$qs = http_build_query([

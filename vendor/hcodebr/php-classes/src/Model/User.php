@@ -380,7 +380,7 @@ class User extends Model{
 	{
 		$msg = (isset($_SESSION[User::ERROR_REGISTER]) && $_SESSION[User::ERROR_REGISTER]) ? $_SESSION[User::ERROR_REGISTER] : '';
 
-		User::clearSuccessRegister();
+		User::clearErrorRegister();
 
 		return $msg;
 	}
