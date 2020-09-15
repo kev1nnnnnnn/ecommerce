@@ -6,6 +6,8 @@ use \Hcode\Model\Category;
 use \Hcode\Model\Cart;
 use \Hcode\Model\Address;
 use \Hcode\Model\User;
+use \Hcode\Model\Order;
+use \Hcode\Model\OrderStatus;
 
 
 	//quando chamarem via get, uma chamada padrao a pasta raiz, ou seja o site sem nenhuma rota, executa essa função
@@ -256,8 +258,23 @@ use \Hcode\Model\User;
 
 		$address->save();
 
-		header("Location: /order");
-		exit;
+		$cart = Cart::getFromSession();
+
+		$totals = $cart->getCalculateTotal();
+
+		$order = new Order();
+
+		$order->setData([
+		'idcart'=>$cart->getidcart(),
+		'idaddress'=>$address->getidaddress(),
+		'iduser'=>$user->getiduser(),
+		'idstatus'=>OrderStatus::EM_ABERTO,
+		'vltotal'=>$cart->getvltotal()
+	]);
+
+	$order->save();
+
+	exit;
 
 	});
 
@@ -479,6 +496,25 @@ use \Hcode\Model\User;
 
 		header('Location: /profile');
 		exit;
+	});
+
+	$app->get("/order/:idorder", function($idorder) {
+
+		User::verifyLogin(false);
+
+		$page = new Page();
+
+		$order->get((int)$idorder);
+
+		//chamando o template
+		$page->setTpl("payment", [
+			'order'=>$order->getValues()
+		]);
+	});
+
+	$app->get("/boleto/:idorder", function($idorder) {
+
+
 	});
 
 ?>
