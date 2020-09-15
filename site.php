@@ -162,10 +162,10 @@ use \Hcode\Model\OrderStatus;
 
 		$cart = Cart::getFromSession();
 
-		/*if (isset($_GET['zipcode'])) {
+		if (isset($_GET['zipcode'])) {
 
 			$_GET['zipcode'] = $cart->getdeszipcode();
-		}*/
+		}
 
 		//detectar se o cep foi enviado
 		if (isset($_GET['zipcode'])) {
@@ -269,11 +269,14 @@ use \Hcode\Model\OrderStatus;
 		'idaddress'=>$address->getidaddress(),
 		'iduser'=>$user->getiduser(),
 		'idstatus'=>OrderStatus::EM_ABERTO,
-		'vltotal'=>$cart->getvltotal()
+		'vltotal'=>$cart->getvlfreight()
 	]);
 
+	//salva o pedido
 	$order->save();
 
+	//o pedido ganhará um ID
+	header("Location: /order/".$order->getidorder());
 	exit;
 
 	});
@@ -498,13 +501,16 @@ use \Hcode\Model\OrderStatus;
 		exit;
 	});
 
+	//pra carregar o pedido que ira ser mostrado precisará receber o :idorder
 	$app->get("/order/:idorder", function($idorder) {
 
 		User::verifyLogin(false);
 
-		$page = new Page();
+		$order = new Order();
 
 		$order->get((int)$idorder);
+
+		$page = new Page();
 
 		//chamando o template
 		$page->setTpl("payment", [
