@@ -162,10 +162,10 @@ use \Hcode\Model\OrderStatus;
 
 		$cart = Cart::getFromSession();
 
-		if (isset($_GET['zipcode'])) {
+		/*if (isset($_GET['zipcode'])) {
 
 			$_GET['zipcode'] = $cart->getdeszipcode();
-		}
+		}*/
 
 		//detectar se o cep foi enviado
 		if (isset($_GET['zipcode'])) {

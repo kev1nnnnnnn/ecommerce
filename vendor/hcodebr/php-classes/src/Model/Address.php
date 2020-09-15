@@ -17,7 +17,7 @@ class Address extends Model {
 		//informar o php que vai rastrear uma URL
 		$ch = curl_init();
 
-		curl_setopt($ch, CURLOPT_URL, "http://viacep.com.br/ws/$nrcep/01001000/json/");
+		curl_setopt($ch, CURLOPT_URL, "http://viacep.com.br/ws/$nrcep/json/");
 
 		//verifica se tem que devolver
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
