@@ -92,7 +92,7 @@ class Cart extends Model {
 	}
 	
 	//metodos basicos SAVE
-	public function save() 
+	public function save()
 	{
 
 		$sql = new Sql();
@@ -107,6 +107,7 @@ class Cart extends Model {
 		]);
 
 		$this->setData($results[0]);
+
 	}
 
 	//metodos para adicionar e remover o produto **** 
@@ -299,7 +300,7 @@ class Cart extends Model {
 		$totals = $this->getProductsTotals();
 
 		$this->setvlsubtotal($totals['vlprice']);
-		$this->setvltotal($totals['vlprice'] + $this->getvlfreight());
+		$this->setvltotal($totals['vlprice'] + (float)$this->getvlfreight());
 	}
 }
 

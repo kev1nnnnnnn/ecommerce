@@ -71,9 +71,7 @@
 
 		$_POST["inadmin"] = (isset($_POST["inadmin"]))?1:0; //se for definido o valor é 1, se nao for o valor é 0
 
-		$_POST['despassword'] = password_hash($_POST["despassword"], PASSWORD_DEFAULT, [
-		"cost"=>12
-		]);
+		$_POST['despassword'] = User::getPasswordHash($_POST['despassword']);
 
 		$user->setData($_POST);
 

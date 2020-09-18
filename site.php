@@ -260,7 +260,7 @@ use \Hcode\Model\OrderStatus;
 
 		$cart = Cart::getFromSession();
 
-		$totals = $cart->getCalculateTotal();
+		$cart->getCalculateTotal();
 
 		$order = new Order();
 
@@ -524,14 +524,18 @@ use \Hcode\Model\OrderStatus;
 
 		$order = new Order();
 
-		$order->get(int($idorder));
+		$order->get((int)$idorder);
 
 		//DADOS DO BOLETO PARA O SEU CLIENTE
 		$dias_de_prazo_para_pagamento = 10;
 		$taxa_boleto = 5.00;
 		$data_venc = date("d/m/Y", time() + ($dias_de_prazo_para_pagamento * 86400));  // Prazo de X dias OU informe data: "13/04/2006"; 
+
+		var_dump(formatPrice($order->getvltotal()));
+		exit;
 		$valor_cobrado = formatPrice($order->getvltotal()); // Valor - REGRA: Sem pontos na milhar e tanto faz com "." ou "," ou com 1 ou 2 ou sem casa decimal
-		$valor_cobrado = str_replace(",", ".",$valor_cobrado);
+		$valor_cobrado = str_replace('.',' , ', $valor_cobrado);
+		
 		$valor_boleto=number_format($valor_cobrado+$taxa_boleto, 2, ',', '');
 
 		$dadosboleto["nosso_numero"] = $order->getidorder();  // Nosso numero - REGRA: Máximo de 8 caracteres!
@@ -581,12 +585,49 @@ use \Hcode\Model\OrderStatus;
 		$dadosboleto["cidade_uf"] = "São Bernardo do Campo - SP";
 		$dadosboleto["cedente"] = "HCODE TREINAMENTOS LTDA - ME";	
 
-		$path = $_SERVER['DOCUMENT.ROOT'] . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR . "boletophp" . DIRECTORY_SEPARATOR . "include" . DIRECTORY_SEPARATOR;
+		$path = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR . "boletophp" . DIRECTORY_SEPARATOR . "include" . DIRECTORY_SEPARATOR;
 
 		// NÃO ALTERAR!
 		require_once($path ."funcoes_itau.php");
 		require_once($path ."layout_itau.php");
 
 	});
+
+	$app->get("/profile/orders", function() {
+
+		User::verifyLogin(false);
+
+		$user = User::getFromSession();
+
+		$page = new Page();
+
+		$page->setTpl("profile-orders", [
+
+			'orders'=>$user->getOrders()
+		]);
+	});
+
+	$app->get("/profile/orders/:idorder", function($idorder) {
+
+		User::verifyLogin(false);
+
+		$order = new Order();
+
+		$order->get((int)$idorder);
+
+		$page = new Page();
+
+		$page->setTpl("profile-orders", [
+			'order'=>$order->getValues()
+
+		]);
+
+	});
+
+	/* BEGIN 
+    INSERT INTO tb_usuarios(deslogin, dssenha) VALUES(pdeslogin, pdessenha);
+    SET @vidusuario = (SELECT idusuario FROM tb_usuarios ORDER BY idusuario DESC LIMIT 1);
+    SELECT * FROM tb_usuarios WHERE idusuario = @vidusuario;
+	END*/
 
 ?>
