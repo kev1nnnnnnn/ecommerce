@@ -630,6 +630,74 @@ use \Hcode\Model\OrderStatus;
 
 	});
 
+	$app->get("/profile/change-password",function() {
+
+		User::verifyLogin(false);
+
+		$page = new Page();
+
+		$page->setTpl("profile-change-password", [
+			'changePassError'=>User::getError(),
+			'changePassSuccess'=>User::getSuccess()
+		]);
+	});
+
+	$app->post("/profile/change-password", function() {
+
+		User::verifyLogin(false);
+	//verifica se digitou a senha
+		if(!isset($_POST['current_pass']) || $_POST['current_pass'] === '') {
+			
+			User::setError("Digite a senha atual");
+
+			header("Location: /profile/change-password");
+			exit;
+		}
+
+		if(!isset($_POST['new_pass']) || $_POST['new_pass'] === '') {
+			
+			User::setError("Digite a nova senha");
+
+			header("Location: /profile/change-password");
+			exit;
+		}
+
+		if(!isset($_POST['new_pass_confirm']) || $_POST['new_pass_confirm'] === '') {
+			
+			User::setError("Confirme a nova senha");
+
+			header("Location: /profile/change-password");
+			exit;
+		}
+
+		//verifica se a senha é diferente da nova
+		if($_POST['current_pass'] === $_POST['new_pass']) {
+		
+			User::setError("A sua nova senha deve ser diferente");
+			
+			header("Location: /profile/change-password");
+			exit;
+		}
+
+		$user = User::getFromSession();
+
+		if (!password_verify($_POST['current_pass'], $user->getdespassword())) {
+			
+			User::setError("A sua senha está inválida");
+			
+			header("Location: /profile/change-password");
+			exit;
+		}
+
+		$user->setdespassword($_POST['new_pass']);
+
+		$user->update();
+
+		User::setSuccess("Senha alterada com sucesso");
+
+		header("Location: /profile/change-password");
+		exit;
+	});
 	/* BEGIN 
     INSERT INTO tb_usuarios(deslogin, dssenha) VALUES(pdeslogin, pdessenha);
     SET @vidusuario = (SELECT idusuario FROM tb_usuarios ORDER BY idusuario DESC LIMIT 1);
