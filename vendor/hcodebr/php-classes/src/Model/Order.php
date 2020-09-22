@@ -57,7 +57,6 @@ class Order extends Model {
 
 	public static function listAll()
 	{
-
 		$sql = new Sql();
 
 		return $sql->select("
@@ -70,141 +69,64 @@ class Order extends Model {
 			INNER JOIN tb_persons f ON f.idperson = d.idperson
 			ORDER BY a.dtregister DESC
 		");
-
 	}
 
+	//deleta produto comprado no admin
 	public function delete()
 	{
-
 		$sql = new Sql();
 
-		$sql->query("DELETE FROM tb_orders WHERE idorder = :idorder", [
+		$sql->query("DELETE FROM tb_orders WHERE idorder = :idorder",[
 			':idorder'=>$this->getidorder()
 		]);
-
 	}
 
 	public function getCart():Cart
 	{
-
 		$cart = new Cart();
 
 		$cart->get((int)$this->getidcart());
 
 		return $cart;
-
-	}
-
-	public static function setError($msg)
-	{
-
-		$_SESSION[Order::ERROR] = $msg;
-
 	}
 
 	public static function getError()
-	{
+	{	
+		//verifica se o erro está definido, se estiver definido e nao for vazio, retorna msg de erro, se nao, retorna vazio.
+		$msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
 
-		$msg = (isset($_SESSION[Order::ERROR]) && $_SESSION[Order::ERROR]) ? $_SESSION[Order::ERROR] : '';
-
-		Order::clearError();
+		//assim que pega o erro, limpa para nao ficar erro na session.
+		User::ClearError();
 
 		return $msg;
-
 	}
 
-	public static function clearError()
+	//metodo pra limpar o erro
+	public static function ClearError()
 	{
-
-		$_SESSION[Order::ERROR] = NULL;
-
+		$_SESSION[User::ERROR] = NULL;
 	}
 
 	public static function setSuccess($msg)
 	{
-
-		$_SESSION[Order::SUCCESS] = $msg;
-
+		$_SESSION[User::SUCCESS] = $msg;
 	}
 
 	public static function getSuccess()
-	{
+	{	
+		//verifica se o erro está definido, se estiver definido e nao for vazio, retorna msg de erro, se nao, retorna vazio.
+		$msg = (isset($_SESSION[User::SUCCESS]) && $_SESSION[User::SUCCESS]) ? $_SESSION[User::SUCCESS] : '';
 
-		$msg = (isset($_SESSION[Order::SUCCESS]) && $_SESSION[Order::SUCCESS]) ? $_SESSION[Order::SUCCESS] : '';
-
-		Order::clearSuccess();
+		//assim que pega o erro, limpa para nao ficar erro na session.
+		User::ClearSuccess();
 
 		return $msg;
-
 	}
 
+	//metodo pra limpar o erro
 	public static function clearSuccess()
 	{
-
-		$_SESSION[Order::SUCCESS] = NULL;
-
-	}
-
-	public static function getPage($page = 1, $itemsPerPage = 10)
-	{
-
-		$start = ($page - 1) * $itemsPerPage;
-
-		$sql = new Sql();
-
-		$results = $sql->select("
-			SELECT SQL_CALC_FOUND_ROWS *
-			FROM tb_orders a 
-			INNER JOIN tb_ordersstatus b USING(idstatus) 
-			INNER JOIN tb_carts c USING(idcart)
-			INNER JOIN tb_users d ON d.iduser = a.iduser
-			INNER JOIN tb_addresses e USING(idaddress)
-			INNER JOIN tb_persons f ON f.idperson = d.idperson
-			ORDER BY a.dtregister DESC
-			LIMIT $start, $itemsPerPage;
-		");
-
-		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
-
-		return [
-			'data'=>$results,
-			'total'=>(int)$resultTotal[0]["nrtotal"],
-			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
-		];
-
-	}
-
-	public static function getPageSearch($search, $page = 1, $itemsPerPage = 10)
-	{
-
-		$start = ($page - 1) * $itemsPerPage;
-
-		$sql = new Sql();
-
-		$results = $sql->select("
-			SELECT SQL_CALC_FOUND_ROWS *
-			FROM tb_orders a 
-			INNER JOIN tb_ordersstatus b USING(idstatus) 
-			INNER JOIN tb_carts c USING(idcart)
-			INNER JOIN tb_users d ON d.iduser = a.iduser
-			INNER JOIN tb_addresses e USING(idaddress)
-			INNER JOIN tb_persons f ON f.idperson = d.idperson
-			WHERE a.idorder = :id OR f.desperson LIKE :search
-			ORDER BY a.dtregister DESC
-			LIMIT $start, $itemsPerPage;
-		", [
-			':search'=>'%'.$search.'%',
-			':id'=>$search
-		]);
-
-		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
-
-		return [
-			'data'=>$results,
-			'total'=>(int)$resultTotal[0]["nrtotal"],
-			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
-		];
-
+		$_SESSION[User::SUCCESS] = NULL;
 	}
 
 }

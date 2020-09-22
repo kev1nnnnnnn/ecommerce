@@ -328,16 +328,16 @@ class User extends Model{
 
 	public static function setError($msg)
 	{
-		$_SESSION[User::ERROR] = $msg;
+		$_SESSION[Order::ERROR] = $msg;
 	}
 
 	public static function getError()
 	{	
 		//verifica se o erro está definido, se estiver definido e nao for vazio, retorna msg de erro, se nao, retorna vazio.
-		$msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
+		$msg = (isset($_SESSION[Order::ERROR]) && $_SESSION[Order::ERROR]) ? $_SESSION[Order::ERROR] : '';
 
 		//assim que pega o erro, limpa para nao ficar erro na session.
-		User::ClearError();
+		Order::ClearError();
 
 		return $msg;
 	}
@@ -345,21 +345,21 @@ class User extends Model{
 	//metodo pra limpar o erro
 	public static function ClearError()
 	{
-		$_SESSION[User::ERROR] = NULL;
+		$_SESSION[Order::ERROR] = NULL;
 	}
 
 	public static function setSuccess($msg)
 	{
-		$_SESSION[User::SUCCESS] = $msg;
+		$_SESSION[Order::SUCCESS] = $msg;
 	}
 
 	public static function getSuccess()
 	{	
 		//verifica se o erro está definido, se estiver definido e nao for vazio, retorna msg de erro, se nao, retorna vazio.
-		$msg = (isset($_SESSION[User::SUCCESS]) && $_SESSION[User::SUCCESS]) ? $_SESSION[User::SUCCESS] : '';
+		$msg = (isset($_SESSION[Order::SUCCESS]) && $_SESSION[Order::SUCCESS]) ? $_SESSION[Order::SUCCESS] : '';
 
 		//assim que pega o erro, limpa para nao ficar erro na session.
-		User::ClearSuccess();
+		Order::ClearSuccess();
 
 		return $msg;
 	}
@@ -367,7 +367,7 @@ class User extends Model{
 	//metodo pra limpar o erro
 	public static function clearSuccess()
 	{
-		$_SESSION[User::SUCCESS] = NULL;
+		$_SESSION[Order::SUCCESS] = NULL;
 	}
 
 	public static function setErrorRegister($msg)
@@ -427,6 +427,58 @@ class User extends Model{
 		]);
 
 		return $results;
+	}
+
+	//MÉTODO DE PAGINAÇÃO
+	public function getPage($page = 1, $itemsPerPage = 3)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_users a INNER JOIN tb_persons b USING(idperson) 
+			ORDER BY b.desperson
+			LIMIT $start, $itemsPerPage;
+		");
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>($results),
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
+
+	//MÉTODO DE BUSCA
+	public function getPageSearch($search, $page = 1, $itemsPerPage = 10)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_users a INNER JOIN tb_persons b USING(idperson)
+			WHERE b.desperson LIKE :search OR b.desemail = :search OR a.deslogin LIKE :search
+			ORDER BY b.desperson
+			LIMIT $start, $itemsPerPage;
+		", [
+			":search"=>'%'.$search.'%'
+		]);
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>($results),
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+		];
 
 	}
 
