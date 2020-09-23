@@ -9,15 +9,42 @@
 
 		User::verifyLogin();
 
-		$categories = Category::listAll();
+		$search = (isset($_GET['search'])) ? $_GET['search'] : "";
+		$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+
+		if($search != "") {
+
+			$pagination = Category::getPageSearch($search,$page, 1); 
+
+		} else {
+
+			$pagination = Category::getPage($page, 1); 
+		}
+
+		$pages = [];
+
+		for ($x=0; $x < $pagination['pages']; $x++) { 
+			array_push($pages, [
+				'href'=>'/admin/users?'.http_build_query([
+					'page'=>$x+1,
+					'search'=>$search
+				]),
+				'text'=>$x+1
+			]);
+		}
+
+		//$users = User::listAll(); //método estático
 
 		$page = new PageAdmin();
 
-		$page->setTpl("categories", [
-			"categories"=>$categories
-		]);
-
+		$page->setTpl("categories", array (
+			"categories"=>$pagination['data'],
+			"search"=>$search,
+			"pages"=>$pages
+		));
 	});
+	//end
+
 
 	$app->get("/admin/categories/create", function(){
 
@@ -27,6 +54,8 @@
 
 		$page->setTpl("categories-create");
 	});
+	//end
+
 
 	$app->post("/admin/categories/create", function(){
 
@@ -38,8 +67,9 @@
 
 		header("Location: /admin/categories");
 		exit();
-
 	});
+	//end
+
 
 	$app->get("/admin/categories/:idcategory/delete", function($idcategory) {
 
@@ -54,6 +84,7 @@
 		header("Location: /admin/categories");
 		exit;
 	});
+	//end
 
 	$app->get("/admin/categories/:idcategory", function($idcategory){
 
@@ -68,8 +99,8 @@
 		$page->setTpl("categories-update", [
 			'category'=>$category->getValues()
 		]);
-
 	});
+	//end
 
 	$app->post("/admin/categories/:idcategory", function($idcategory){
 		
@@ -88,6 +119,7 @@
 		header("Location: /admin/categories");
 		exit;
 	});
+	//end
 
 	//PRODUTOS VS CATEGORIAS
 
@@ -108,6 +140,7 @@
 		]);
 
 	});
+	//end
 
 	$app->get("/admin/categories/:idcategory/products/:idproduct/add", function($idcategory, $idproduct) {
 
@@ -127,6 +160,7 @@
 		exit;
 
 	});
+	//end
 
 	$app->get("/admin/categories/:idcategory/products/:idproduct/remove", function($idcategory, $idproduct) {
 
@@ -144,7 +178,8 @@
 
 		header("Location: /admin/categories/".$idcategory."/products");
 		exit;
-
 	});
+	//end
+
 
 ?>

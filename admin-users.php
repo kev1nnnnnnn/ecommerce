@@ -19,8 +19,6 @@
 			$pagination = User::getPage($page, 1); 
 		}
 
-		
-
 		$pages = [];
 
 		for ($x=0; $x < $pagination['pages']; $x++) { 

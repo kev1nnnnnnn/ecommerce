@@ -16,6 +16,7 @@ class Category extends Model{
 	{
 		$sql = new Sql();
 
+		//lista a tabela organizado pelo nome da categoria
 		return $sql->select("SELECT * FROM tb_categories ORDER BY descategory");
 	}
 
@@ -152,6 +153,59 @@ class Category extends Model{
 			":idcategory"=>$this->getidcategory(),
 			":idproduct"=>$product->getidproduct()
 		]);
+	}
+
+	//MÉTODO DE PAGINAÇÃO
+	public static function getPage($page = 1, $itemsPerPage = 10)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_categories 
+			ORDER BY descategory
+			LIMIT $start, $itemsPerPage;
+		");
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>$results,
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
+
+	//MÉTODO DE BUSCA
+	public function getPageSearch($search, $page = 1, $itemsPerPage = 10)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_categories
+			WHERE descategory LIKE :search 
+			ORDER BY descategory
+			LIMIT $start, $itemsPerPage;
+		", [
+			":search"=>'%'.$search.'%'
+		]);
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>($results),
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
 	}
 
 }	
