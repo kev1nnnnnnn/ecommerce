@@ -25,7 +25,7 @@
 
 		for ($x=0; $x < $pagination['pages']; $x++) { 
 			array_push($pages, [
-				'href'=>'/admin/users?'.http_build_query([
+				'href'=>'/admin/categories?'.http_build_query([
 					'page'=>$x+1,
 					'search'=>$search
 				]),
