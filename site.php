@@ -241,7 +241,7 @@ use \Hcode\Model\OrderStatus;
 		}
 
 		if (!isset($_POST['descountry']) || $_POST['descountry'] === '') {
-			Address::setMsgError("Informe o´seu País.");
+			Address::setMsgError("Informe o seu País.");
 
 			header("Location: /checkout");
 			exit;
